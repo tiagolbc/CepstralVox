@@ -346,7 +346,7 @@ class CPPApp:
             "Instagram: @fonotechacademy\n"
             "Website: www.fonotechacademy.com\n\n"
             "Citation (if used for research):\n"
-            "Cruz, Tiago Lima Bicalho. (2024). CepstralVox: Software for cepstral-based acoustic voice analysis (Version 1.0.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.1234567\n"
+            "Cruz, Tiago Lima Bicalho. (2024). CepstralVox: A tool for cepstral and voice analysis (Version 1.0.0) [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.15773397\n"
         )
         # Mostra About em janela de texto
         about_win = tk.Toplevel(self.root)
