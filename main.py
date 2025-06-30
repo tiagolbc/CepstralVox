@@ -353,7 +353,7 @@ class CPPApp:
         about_win.title("About CepstralVox")
         about_win.configure(bg=BG_COLOR)
         about_win.resizable(False, False)
-        text = tk.Text(about_win, wrap="word", font=("Calibri", 12), bg=BG_COLOR, relief="flat", bd=0, height=20,
+        text = tk.Text(about_win, wrap="word", font=("Calibri", 12), bg=BG_COLOR, relief="flat", bd=0, height=22,
                        width=65)
         text.insert("1.0", about_text)
         text.config(state="disabled")
