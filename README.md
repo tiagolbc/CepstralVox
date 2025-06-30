@@ -74,7 +74,7 @@ python main.py
 
 If you use **CepstralVox** in scientific publications, please cite:
 
-> Cruz, Tiago Lima Bicalho. *CepstralVox: A tool for cepstral and voice analysis*. Zenodo. [https://doi.org/10.5281/zenodo.9999999](https://doi.org/10.5281/zenodo.15773397)
+> Cruz, Tiago Lima Bicalho. *CepstralVox: A tool for cepstral and voice analysis*. Zenodo. [https://doi.org/10.5281/zenodo.15773397]
 
 ---
 
