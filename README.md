@@ -1,93 +1,95 @@
+
 # CepstralVox
 
-CepstralVox
-CepstralVox is a free, open-source, cross-platform tool for cepstral and voice analysis.
-It provides user-friendly batch and interactive analysis of CPP and CPPS directly from WAV files, replicating Praat’s acoustic algorithms, and is designed for both research and clinical settings.
+**CepstralVox** is a free, open-source, cross-platform tool for cepstral and voice analysis.
 
-Features
-Accurate extraction of CPP and CPPS (Cepstral Peak Prominence, Praat-style)
+CepstralVox provides user-friendly batch and interactive analysis of CPP and CPPS directly from WAV files, replicating Praat’s acoustic algorithms. Designed for both research and clinical settings.
 
-Visual, interactive spectrogram with pitch overlay (fundamental frequency curve from Praat)
+---
 
-Automatic batch processing of multiple audio files
+## Features
 
-Region of interest (ROI) selection for focused analysis
+- **Accurate extraction of CPP and CPPS** (Cepstral Peak Prominence, Praat-style)
+- **Visual, interactive spectrogram** with F0 (Praat pitch curve)
+- **Automatic batch processing** of multiple audio files
+- **Region of interest (ROI) selection** for focused analysis
+- **Praat-compatible:** Uses Praat’s algorithms for maximal reproducibility
+- **Export of results** to CSV for statistical analysis
+- **Clean, intuitive GUI** (Tkinter + Matplotlib)
+- **Free for research and clinical use**
 
-Praat-compatible: Uses Praat’s algorithms for maximal reproducibility
+---
 
-Export of results to CSV for statistical analysis
+## Installation
 
-Clean, intuitive GUI (Tkinter + Matplotlib)
+**Requirements**
+- Python 3.8+
+- [Praat](https://www.fon.hum.uva.nl/praat/) (add `praat.exe` or `praat` to your system PATH)
+- Recommended: [Anaconda](https://www.anaconda.com/products/distribution)
 
-Ready-to-use for clinical or research purposes
-
-Installation
-Requirements
-Python 3.8+
-
-Praat (must be installed and accessible as praat.exe or praat in your PATH)
-
-Recommended: Anaconda
-
-Python dependencies
-Install all dependencies with:
-
-bash
-Copiar
-Editar
+**Python dependencies:**
+```bash
 pip install numpy matplotlib soundfile parselmouth pillow
-Download
-Download the latest release from GitHub Releases
+```
 
-Or clone with:
-
-bash
-Copiar
-Editar
+**Download:**
+```bash
 git clone https://github.com/tiagolbc/cepstralvox.git
 cd cepstralvox
-Usage
-Launching the GUI
-bash
-Copiar
-Editar
+```
+
+---
+
+## Usage
+
+**Launching the GUI**
+```bash
 python main.py
-Main Features
-Open WAV File: Select a file for analysis
+```
 
-Select Analysis Type: Choose CPP or CPPS, and file type (sustained vowel or connected speech)
+### Main Features
 
-ROI Selection: Click and drag on the spectrogram to select a region for analysis
+- **Open WAV File:** Select an audio file for analysis
+- **Select Analysis Type:** CPP or CPPS, and file type (sustained vowel or connected speech)
+- **ROI Selection:** Click and drag on the spectrogram to select region
+- **Run Analysis:** Calculate and display results
+- **Show Quefrency Plot:** Visualize the quefrency spectrum
+- **Batch Process:** Analyze multiple files at once
+- **Export CSV:** Save your results
 
-Run Analysis: Calculate and display results
+### Batch Mode
 
-Show Quefrency Plot: Visualize the quefrency spectrum with main peak and trend
+- Use the **Batch Process** button to analyze all WAV files in a folder.
+- Results and quefrency plots are saved automatically.
 
-Batch Process: Analyze multiple files at once
+---
 
-Export CSV: Save your results for further analysis
+## Screenshot
 
-Batch Mode
-Use the Batch Process button in the GUI to process all WAV files in a selected folder.
+![CepstralVox GUI](figures/gui.png)
 
-Results and quefrency plots are saved automatically.
+---
 
-Screenshot
-<p align="center"> <img src="figures/gui.png" width="720"> </p>
-How to Cite
-If you use CepstralVox in scientific publications, please cite:
+## How to Cite
 
-Cruz, Tiago Lima Bicalho. CepstralVox: A tool for cepstral and voice analysis. Zenodo. https://doi.org/10.5281/zenodo.9999999
+If you use **CepstralVox** in scientific publications, please cite:
 
-Support and Contact
-Instagram: @fonotechacademy
+> Cruz, Tiago Lima Bicalho. *CepstralVox: A tool for cepstral and voice analysis*. Zenodo. https://doi.org/10.5281/zenodo.9999999
 
-Email: fonotechacademy@gmail.com
+---
+
+## Support and Contact
+
+- Instagram: [@fonotechacademy](https://instagram.com/fonotechacademy)
+- Email: fonotechacademy@gmail.com
+- Website: https://www.fonotechacademy.com/en
 
 For feature requests or bug reports, please open an issue on GitHub.
 
-License
+---
+
+## License
+
 This project is licensed under the MIT License.
 
-Acknowledgements
-CepstralVox is inspired by classic Praat methods (Paul Boersma & David Weenink), and incorporates community feedback from voice researchers and clinicians.
+---
