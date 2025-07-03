@@ -74,7 +74,7 @@ def plot_quefrency_figure(res, method, save_path=None, show=False):
 class CPPApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Cepstral Vox version 1.0.0")
+        self.root.title("Cepstral Vox version 1.0.1")
         self.root.configure(bg=BG_COLOR)
         self.audio_path = None
         self.audio_data = None
@@ -115,6 +115,19 @@ class CPPApp:
             tk.Radiobutton(btn_row, text=label, variable=self.analysis_type_var, value=label,
                 bg=BG_COLOR, font=BTN_FONT).pack(side=tk.LEFT, padx=4)
 
+        # ------------------- F0 Range Controls -------------------
+        self.f0_min_var = tk.DoubleVar(value=60)
+        self.f0_max_var = tk.DoubleVar(value=330)
+        tk.Label(btn_row, text="F0 Min (Hz):", font=BTN_FONT, bg=BG_COLOR).pack(side=tk.LEFT, padx=(14, 2))
+        self.f0_min_entry = tk.Entry(btn_row, textvariable=self.f0_min_var, width=6, font=BTN_FONT)
+        self.f0_min_entry.pack(side=tk.LEFT)
+        tk.Label(btn_row, text="F0 Max (Hz):", font=BTN_FONT, bg=BG_COLOR).pack(side=tk.LEFT, padx=(12, 2))
+        self.f0_max_entry = tk.Entry(btn_row, textvariable=self.f0_max_var, width=6, font=BTN_FONT)
+        self.f0_max_entry.pack(side=tk.LEFT)
+        set_f0_btn = tk.Button(btn_row, text="Set F0 Range", font=BTN_FONT, command=self.set_f0_range)
+        set_f0_btn.pack(side=tk.LEFT, padx=7)
+        # --------------------------------------------------------
+
         self.batch_btn = tk.Button(btn_row, text="Batch Process", font=BTN_FONT, command=self.batch_process)
         self.batch_btn.pack(side=tk.LEFT, padx=10, ipadx=5, ipady=2)
 
@@ -143,7 +156,8 @@ class CPPApp:
         self.play_btn.pack(side=tk.LEFT, padx=4, ipadx=4)
         self.run_btn = tk.Button(bot, text="Run Analysis", font=BTN_FONT, command=self.run_analysis, state=tk.DISABLED)
         self.run_btn.pack(side=tk.LEFT, padx=6, ipadx=8)
-        self.show_quef_btn = tk.Button(bot, text="Show Quefrency Plot", font=BTN_FONT, command=self.show_quefrency_plot, state=tk.DISABLED)
+        self.show_quef_btn = tk.Button(bot, text="Show Quefrency Plot", font=BTN_FONT, command=self.show_quefrency_plot,
+                                       state=tk.DISABLED)
         self.show_quef_btn.pack(side=tk.LEFT, padx=6, ipadx=8)
         self.export_btn = tk.Button(bot, text="Export CSV", font=BTN_FONT, command=self.export_csv, state=tk.DISABLED)
         self.export_btn.pack(side=tk.LEFT, padx=6, ipadx=8)
@@ -222,6 +236,24 @@ class CPPApp:
             self.status_label.config(text=f"Selected ROI: {tmin:.2f} - {tmax:.2f} s")
             self.canvas.draw()
 
+    def set_f0_range(self):
+        minval = self.f0_min_var.get()
+        maxval = self.f0_max_var.get()
+        msg = (
+            "The F0 range should only be changed if you are analyzing voices outside "
+            "the typical adult range (e.g., children or singing voices).\n\n"
+            "Are you sure you want to proceed?"
+        )
+        if messagebox.askokcancel("Change F0 Range", msg):
+            self.status_label.config(
+                text=f"F0 range set to {minval:.1f}–{maxval:.1f} Hz. All new analyses will use these values.",
+                fg="#14598d"
+            )
+        else:
+            self.f0_min_var.set(60)
+            self.f0_max_var.set(330)
+            self.status_label.config(text="F0 range reset to default (60–330 Hz).", fg="#14598d")
+
     def run_analysis(self):
         if self.audio_path is None:
             messagebox.showerror("Error", "Load an audio file first.")
@@ -230,8 +262,11 @@ class CPPApp:
         method = self.analysis_type_var.get()
         self.analysis_method = method
         file_type = self.file_type_var.get()
+        min_f0 = self.f0_min_var.get()
+        max_f0 = self.f0_max_var.get()
         try:
-            results = extract_cpp(self.audio_path, region=region, method=method, file_type=file_type)
+            results = extract_cpp(self.audio_path, region=region, method=method, file_type=file_type,
+                                  min_f0=min_f0, max_f0=max_f0)
             self.analysis_result = results
             self.results_type = file_type
         except Exception as e:
@@ -248,7 +283,6 @@ class CPPApp:
         self.status_label.config(text=f"{method} analysis complete.")
         self.export_btn.config(state=tk.NORMAL)
         self.show_quef_btn.config(state=tk.NORMAL)
-        # Salva a figura automaticamente com todos os dados
         outpath = os.path.splitext(self.audio_path)[0] + f"_{method}_quefrency.png"
         plot_quefrency_figure(self.analysis_result, method, save_path=outpath, show=False)
 
@@ -274,10 +308,13 @@ class CPPApp:
             return
         file_type = self.file_type_var.get()
         self.batch_method = method
+        min_f0 = self.f0_min_var.get()
+        max_f0 = self.f0_max_var.get()
         self.status_label.config(text="Batch processing, please wait...")
         self.root.update()
         try:
-            batch_results = batch_extract_cpp(folder_path, method=method, file_type=file_type)
+            batch_results = batch_extract_cpp(folder_path, method=method, file_type=file_type,
+                                              min_f0=min_f0, max_f0=max_f0)
         except Exception as e:
             messagebox.showerror("Batch Error", str(e))
             return
