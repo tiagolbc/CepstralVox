@@ -6,7 +6,7 @@ import uuid
 import soundfile as sf
 
 def parse_praat_powercepstrum_txt(filepath):
-    """Parseia arquivo Praat (PowerCepstrum short text) e retorna (x, y)"""
+    """Parse Praat PowerCepstrum short text file and return (x, y) arrays"""
     with open(filepath, 'r') as f:
         lines = [l.strip() for l in f if l.strip() != ""]
     header_idx = None
@@ -27,8 +27,8 @@ def parse_praat_powercepstrum_txt(filepath):
 
 def extract_voiced_only(audio_path, min_f0=50, max_f0=500):
     """
-    Extrai somente os segmentos vozeados do áudio (zera o unvoiced), usando Parselmouth.
-    Retorna caminho do novo arquivo WAV apenas com partes vozeadas.
+    Extract only voiced segments from the audio (set unvoiced to zero), using Parselmouth.
+    Returns the path to a new WAV file with only voiced parts.
     """
     snd = parselmouth.Sound(audio_path)
     pitch = snd.to_pitch(time_step=0.01, pitch_floor=min_f0, pitch_ceiling=max_f0)
@@ -40,7 +40,7 @@ def extract_voiced_only(audio_path, min_f0=50, max_f0=500):
     for t, f0 in zip(times, values):
         idx = int(t * sr)
         if 0 <= idx < len(samples) and f0 > 0 and not np.isnan(f0):
-            # Marca como vozeado numa janela de 10 ms
+            # Mark as voiced in a 10ms window
             left = max(0, idx - int(0.005 * sr))
             right = min(len(samples), idx + int(0.005 * sr))
             voiced_mask[left:right] = True
@@ -51,10 +51,10 @@ def extract_voiced_only(audio_path, min_f0=50, max_f0=500):
 
 def remove_pauses_with_parselmouth(audio_path, silence_threshold=-35):
     """
-    Remove silêncios e pausas usando Parselmouth+Praat. Retorna caminho para novo WAV.
+    Remove silences and pauses using Parselmouth+Praat. Returns path to new WAV.
     """
     snd = parselmouth.Sound(audio_path)
-    # Usa Trim silences do Praat
+    # Use Praat's Trim silences
     trimmed = parselmouth.praat.call(
         snd, "Trim silences",
         0.08,  # minimum silent duration (s)
@@ -68,7 +68,6 @@ def remove_pauses_with_parselmouth(audio_path, silence_threshold=-35):
         "trimmed"  # name
     )
 
-    # Pegue o primeiro elemento da lista (que é um Sound)
     if isinstance(trimmed, list):
         trimmed_sound = trimmed[0]
     else:
@@ -78,21 +77,21 @@ def remove_pauses_with_parselmouth(audio_path, silence_threshold=-35):
     trimmed_sound.save(temp_wav, "WAV")
     return temp_wav
 
-
-def preprocess_connected_speech(audio_path):
+def preprocess_connected_speech(audio_path, min_f0=50, max_f0=500):
     """
-    Pipeline: (1) Extrai vozeado -> (2) Remove pausas -> retorna novo wav
+    Pipeline: (1) Extract voiced -> (2) Remove pauses -> return new wav
     """
-    temp_voiced = extract_voiced_only(audio_path)
+    temp_voiced = extract_voiced_only(audio_path, min_f0=min_f0, max_f0=max_f0)
     temp_nopause = remove_pauses_with_parselmouth(temp_voiced)
     try: os.remove(temp_voiced)
     except Exception: pass
     return temp_nopause
 
-def extract_cpp(audio_path, region=None, method="CPP", file_type="Sustained vowel", praat_path="praat.exe"):
-    # ===== PRÉ-PROCESSAMENTO PARA CONNECTED SPEECH =====
+def extract_cpp(audio_path, region=None, method="CPP", file_type="Sustained vowel",
+                praat_path="praat.exe", min_f0=60, max_f0=330):
+    # ===== PREPROCESSING FOR CONNECTED SPEECH =====
     if file_type.lower().startswith("connected"):
-        wav_path_for_praat = preprocess_connected_speech(audio_path)
+        wav_path_for_praat = preprocess_connected_speech(audio_path, min_f0=min_f0, max_f0=max_f0)
     else:
         wav_path_for_praat = audio_path
 
@@ -126,10 +125,11 @@ def extract_cpp(audio_path, region=None, method="CPP", file_type="Sustained vowe
     cepstrum_file = temp_wav_path + ".ceps.txt"
     snd.save(temp_wav_path, "WAV")
 
+    # Use F0 min/max in Praat script
     script_content = f'''
 Read from file: "{temp_wav_path}"
-To PowerCepstrogram: 60, 0.002, 5000, 50
-cpps = Get CPPS: "{subtract_trend}", {time_avg_win}, {quef_avg_win}, 60, 330, 0.05, "Parabolic", 0.001, 0, "{trend_type}", "Robust"
+To PowerCepstrogram: 60, 0.002, 5000, {min_f0}
+cpps = Get CPPS: "{subtract_trend}", {time_avg_win}, {quef_avg_win}, {min_f0}, {max_f0}, 0.05, "Parabolic", 0.001, 0, "{trend_type}", "Robust"
 writeFileLine: "{output_file}", cpps
 To PowerCepstrum (slice): {center_time}
 Smooth: 0.0005, 1
@@ -144,7 +144,8 @@ Write to short text file: "{cepstrum_file}"
     print("Temp praat script:", temp_script_path)
     print("Output file:", output_file)
     print("Cepstrum file:", cepstrum_file)
-    print("Slice time usado:", center_time)
+    print("Slice time used:", center_time)
+    print("F0 min/max:", min_f0, max_f0)
     print("=================================")
 
     try:
@@ -159,7 +160,7 @@ Write to short text file: "{cepstrum_file}"
                 except Exception:
                     cpp_val = None
         else:
-            print("Arquivo output não encontrado!")
+            print("Output file not found!")
             raise RuntimeError(f"Praat did not produce output: {result.stderr}")
         # Now load cepstrum
         if os.path.exists(cepstrum_file):
@@ -170,20 +171,20 @@ Write to short text file: "{cepstrum_file}"
                 if spectrum is not None and quefrency is not None:
                     trend = np.polyval(np.polyfit(quefrency, spectrum, 1), quefrency)
             except Exception as e:
-                print(f"Erro ao ler o arquivo cepstrum: {cepstrum_file}")
+                print(f"Error reading cepstrum file: {cepstrum_file}")
                 print(e)
                 quefrency, spectrum, trend = None, None, None
         else:
-            print("Arquivo cepstrum NÃO encontrado:", cepstrum_file)
+            print("Cepstrum file NOT found:", cepstrum_file)
             quefrency, spectrum, trend = None, None, None
     finally:
-        # Uncomment to remove temp files after debug
+        # Clean up temp files
         for f in [temp_wav_path, temp_script_path, output_file, cepstrum_file]:
             try: os.remove(f)
             except Exception: pass
         pass
 
-    # Limpeza dos arquivos temporários de pré-processamento (opcional)
+    # Clean up preprocessed temp wav (optional)
     if file_type.lower().startswith("connected"):
         try: os.remove(wav_path_for_praat)
         except Exception: pass
@@ -196,7 +197,8 @@ Write to short text file: "{cepstrum_file}"
         "region": (start, end)
     }
 
-def batch_extract_cpp(folder_path, method="CPP", file_type="Sustained vowel", praat_path="praat.exe", save_dir=None):
+def batch_extract_cpp(folder_path, method="CPP", file_type="Sustained vowel", praat_path="praat.exe",
+                     save_dir=None, min_f0=60, max_f0=330):
     results = []
     if save_dir is None:
         save_dir = folder_path
@@ -207,12 +209,12 @@ def batch_extract_cpp(folder_path, method="CPP", file_type="Sustained vowel", pr
         if fname.lower().endswith(".wav"):
             fpath = os.path.join(folder_path, fname)
             try:
-                res = extract_cpp(fpath, region=None, method=method, file_type=file_type, praat_path=praat_path)
+                res = extract_cpp(fpath, region=None, method=method, file_type=file_type,
+                                 praat_path=praat_path, min_f0=min_f0, max_f0=max_f0)
                 res['filename'] = fname
                 results.append(res)
-
             except Exception as e:
-                print(f"Erro ao processar {fname}: {e}")
+                print(f"Error processing {fname}: {e}")
                 results.append({"filename": fname, "error": str(e)})
 
     return results
