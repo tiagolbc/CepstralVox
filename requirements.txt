@@ -1,0 +1,7 @@
+numpy
+matplotlib
+scipy
+soundfile
+parselmouth
+Pillow
+tk
