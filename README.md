@@ -70,14 +70,6 @@ python main.py
 
 ---
 
-## How to Cite
-
-If you use **CepstralVox** in scientific publications, please cite:
-
-> Cruz, Tiago Lima Bicalho. *CepstralVox: A tool for cepstral and voice analysis*. Zenodo. [https://doi.org/10.5281/zenodo.15773397]
-
----
-
 ## Support and Contact
 
 - Instagram: [@fonotechacademy](https://instagram.com/fonotechacademy)
