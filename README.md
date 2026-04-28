@@ -13,9 +13,10 @@ CepstralVox provides user-friendly batch and interactive analysis of CPP and CPP
 - **Visual, interactive spectrogram** with F0 (Praat pitch curve)
 - **Automatic batch processing** of multiple audio files
 - **Region of interest (ROI) selection** for focused analysis
+- **Comparing tab** for compare 2 files.
 - **Praat-compatible:** Uses Praat’s algorithms for maximal reproducibility
 - **Export of results** to CSV for statistical analysis
-- **Clean, intuitive GUI** (Tkinter + Matplotlib)
+- **Clean, intuitive GUI** (PySide6 + Matplotlib)
 - **Free for research and clinical use**
 
 ---
@@ -44,7 +45,7 @@ cd cepstralvox
 
 **Launching the GUI**
 ```bash
-python main.py
+python run_qt.py
 ```
 
 ### Main Features
@@ -56,6 +57,7 @@ python main.py
 - **Show Quefrency Plot:** Visualize the quefrency spectrum
 - **Batch Process:** Analyze multiple files at once
 - **Export CSV:** Save your results
+- **Comparing tab** for compare 2 files. (NEW!!!)
 
 ### Batch Mode
 
@@ -85,3 +87,7 @@ For feature requests or bug reports, please open an issue on GitHub.
 This project is licensed under the MIT License.
 
 ---
+
+## Citation
+
+Cruz, Tiago Lima Bicalho. "CepstralVox: A User-Friendly Open-Source Tool for Cepstral Voice Analysis." Journal of Voice (2025).
