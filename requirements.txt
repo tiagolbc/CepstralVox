@@ -4,4 +4,4 @@ scipy
 soundfile
 parselmouth
 Pillow
-tk
+PySide6
